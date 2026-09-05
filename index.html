@@ -2,110 +2,107 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>AR Cute Walking Cat 🐾</title>
-  
-  <!-- A-Frame and AR.js libraries -->
+
+  <!-- A-Frame & AR.js -->
   <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
   <style>
     * {
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
       user-select: none;
       -webkit-user-select: none;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     body {
       margin: 0;
       overflow: hidden;
-      background: #000;
+      background-color: #000;
     }
 
     /* UI Overlay */
-    #ui-container {
+    #ui {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1000;
-      pointer-events: none; /* let clicks pass through except buttons */
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 10000;
+      pointer-events: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      padding: 16px;
+      padding: 14px;
     }
 
-    .top-bar {
+    .top-card {
+      pointer-events: auto;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      padding: 10px 16px;
+      border-radius: 18px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      pointer-events: auto;
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(10px);
-      padding: 10px 16px;
-      border-radius: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
-    .title-box h1 {
+    .top-card h1 {
       margin: 0;
-      font-size: 1.05rem;
+      font-size: 1rem;
       color: #2c3e50;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      font-weight: 700;
     }
-    .title-box p {
+    .top-card p {
       margin: 2px 0 0 0;
       font-size: 0.75rem;
       color: #7f8c8d;
     }
-    .status-badge {
-      background: #ff7675;
-      color: #fff;
+
+    .status-tag {
       font-size: 0.75rem;
-      padding: 5px 10px;
+      font-weight: 700;
+      padding: 6px 12px;
       border-radius: 12px;
-      font-weight: bold;
-      transition: all 0.3s;
+      color: white;
+      background: #ff5252;
+      transition: background 0.3s;
     }
-    .status-badge.found {
-      background: #20bf6b;
+    .status-tag.found {
+      background: #2ed573;
     }
 
-    /* Bottom Controls */
-    .controls-panel {
+    .bottom-panel {
       pointer-events: auto;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       padding: 14px 16px;
-      border-radius: 24px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      border-radius: 22px;
+      box-shadow: 0 6px 25px rgba(0,0,0,0.25);
       display: flex;
       flex-direction: column;
       gap: 12px;
-      max-width: 420px;
+      max-width: 440px;
       margin: 0 auto;
       width: 100%;
     }
 
-    .control-row {
+    .row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-    }
-    .control-label {
-      font-size: 0.85rem;
-      font-weight: bold;
-      color: #34495e;
-      min-width: 75px;
-    }
-
-    .button-group {
-      display: flex;
       gap: 8px;
+    }
+    .row-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #2f3542;
+      min-width: 70px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 6px;
       flex: 1;
       justify-content: flex-end;
     }
@@ -114,73 +111,54 @@
       border: none;
       outline: none;
       cursor: pointer;
-      padding: 8px 14px;
-      border-radius: 14px;
-      font-size: 0.82rem;
+      padding: 7px 12px;
+      border-radius: 12px;
+      font-size: 0.8rem;
       font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      transition: transform 0.1s, background 0.2s;
     }
     .btn:active {
-      transform: scale(0.94);
+      transform: scale(0.92);
     }
 
     /* Speed Buttons */
-    .btn-speed {
+    .btn-spd {
       background: #f1f2f6;
-      color: #2f3542;
+      color: #57606f;
     }
-    .btn-speed.active {
-      background: #ff6b6b;
+    .btn-spd.active {
+      background: #ff4757;
       color: #fff;
-      box-shadow: 0 3px 10px rgba(255, 107, 107, 0.4);
     }
 
     /* Color Buttons */
-    .btn-color {
-      padding: 6px 12px;
-      border: 2px solid transparent;
-    }
-    .btn-color.orange {
-      background: #ffa502;
-      color: #fff;
-    }
-    .btn-color.black {
-      background: #2f3542;
-      color: #fff;
-    }
-    .btn-color.white {
-      background: #ffffff;
-      color: #2f3542;
-      border: 2px solid #ced6e0;
-    }
-    .btn-color.active {
-      transform: scale(1.08);
-      border-color: #2ed573;
-      box-shadow: 0 0 0 2px #2ed573;
+    .btn-col.orange { background: #ffa502; color: #fff; }
+    .btn-col.black  { background: #2f3542; color: #fff; }
+    .btn-col.white  { background: #ffffff; color: #2f3542; border: 1.5px solid #dcdde1; }
+    .btn-col.active {
+      box-shadow: 0 0 0 2.5px #2ed573;
+      transform: scale(1.05);
     }
 
-    /* Marker preview hint button */
-    .btn-hint {
+    /* Marker Helper Button */
+    .btn-helper {
       background: #70a1ff;
       color: #fff;
-      padding: 6px 10px;
-      font-size: 0.75rem;
+      padding: 5px 10px;
+      font-size: 0.72rem;
       border-radius: 10px;
-      text-decoration: none;
       border: none;
+      cursor: pointer;
+      margin-right: 6px;
     }
 
-    /* Modal for showing marker on screen */
+    /* Modal */
     #marker-modal {
       display: none;
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0,0,0,0.85);
-      z-index: 2000;
+      z-index: 20000;
       justify-content: center;
       align-items: center;
       flex-direction: column;
@@ -190,425 +168,242 @@
     }
     #marker-modal img {
       max-width: 260px;
-      max-height: 260px;
       background: white;
-      padding: 15px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 10px;
       margin: 15px 0;
     }
     #marker-modal button {
       background: #ff4757;
       color: white;
       border: none;
-      padding: 8px 20px;
-      font-size: 0.9rem;
+      padding: 8px 24px;
+      font-size: 0.85rem;
       border-radius: 20px;
       cursor: pointer;
+      font-weight: bold;
     }
   </style>
 </head>
 
 <body>
-
-  <!-- UI Elements -->
-  <div id="ui-container">
-    <div class="top-bar">
-      <div class="title-box">
+  <!-- User Interface -->
+  <div id="ui">
+    <div class="top-card">
+      <div>
         <h1>🐾 แมวน้อย AR Runner</h1>
-        <p>ส่องกล้องไปที่ Marker (Hiro) เพื่อดูน้องแมว</p>
+        <p>ส่องกล้องไปที่รูปภาพ Marker</p>
       </div>
-      <div style="display: flex; gap: 6px; align-items: center;">
-        <button class="btn-hint" onclick="toggleMarkerModal(true)">ดู Marker 📷</button>
-        <span id="status-badge" class="status-badge">กำลังหา Marker...</span>
+      <div style="display: flex; align-items: center;">
+        <button class="btn-helper" onclick="toggleModal(true)">ดูรูป Marker</button>
+        <span id="badge" class="status-tag">กำลังหา Marker...</span>
       </div>
     </div>
 
-    <div class="controls-panel">
-      <!-- Speed Row -->
-      <div class="control-row">
-        <span class="control-label">⚡ ความเร็ว:</span>
-        <div class="button-group">
-          <button class="btn btn-speed active" onclick="setSpeed(1, this)">เดินชิล (1x)</button>
-          <button class="btn btn-speed" onclick="setSpeed(2.2, this)">เดินเร็ว (2x)</button>
-          <button class="btn btn-speed" onclick="setSpeed(4.0, this)">วิ่งสับ! (4x)</button>
+    <div class="bottom-panel">
+      <!-- Speed Controls -->
+      <div class="row">
+        <span class="row-title">⚡ ความเร็ว:</span>
+        <div class="btn-group">
+          <button class="btn btn-spd active" onclick="setSpeed(1.0, this)">เดินชิล (1x)</button>
+          <button class="btn btn-spd" onclick="setSpeed(2.2, this)">เดินเร็ว (2x)</button>
+          <button class="btn btn-spd" onclick="setSpeed(4.2, this)">วิ่งสับ! (4x)</button>
         </div>
       </div>
 
-      <!-- Color Row -->
-      <div class="control-row">
-        <span class="control-label">🎨 สีตัวแมว:</span>
-        <div class="button-group">
-          <button class="btn btn-color orange active" onclick="setCatColor('orange', this)">ส้ม 🐱</button>
-          <button class="btn btn-color black" onclick="setCatColor('black', this)">ดำ 🐈‍⬛</button>
-          <button class="btn btn-color white" onclick="setCatColor('white', this)">ขาว ⚪</button>
+      <!-- Color Controls -->
+      <div class="row">
+        <span class="row-title">🎨 สีแมว:</span>
+        <div class="btn-group">
+          <button class="btn btn-col orange active" onclick="setCatColor('orange', this)">ส้ม 🐱</button>
+          <button class="btn btn-col black" onclick="setCatColor('black', this)">ดำ 🐈‍⬛</button>
+          <button class="btn btn-col white" onclick="setCatColor('white', this)">ขาว ⚪</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Marker helper modal -->
+  <!-- Marker helper popup -->
   <div id="marker-modal">
-    <h3>ส่องกล้องไปที่ภาพ Marker นี้:</h3>
+    <h3 style="margin:0;">รูป Marker สำหรับส่อง</h3>
     <img src="marker.png" alt="Hiro Marker">
-    <p style="font-size: 0.85rem; color: #dfe4ea; max-width: 320px;">
-      สามารถเปิดรูปนี้ในมือถืออีกเครื่อง หรือพิมพ์ใส่กระดาษ แล้วใช้กล้องส่องครับ
+    <p style="font-size: 0.8rem; color: #dfe4ea; margin: 0 0 15px 0;">
+      เปิดรูปนี้บนหน้าจอคอมฯ หรือมือถืออีกเครื่อง แล้วใช้กล้องส่อง
     </p>
-    <button onclick="toggleMarkerModal(false)">ปิดหน้าต่างนี้</button>
+    <button onclick="toggleModal(false)">ปิดหน้าต่าง</button>
   </div>
 
   <!-- A-Frame AR Scene -->
-  <a-scene 
-    embedded 
-    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+  <a-scene
+    embedded
+    arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best; detectionMode: mono_and_matrix;"
+    renderer="colorManagement: true; precision: medium;"
     vr-mode-ui="enabled: false">
 
-    <!-- Ambient and Directional Lights for warm, cute 3D look -->
-    <a-entity light="type: ambient; color: #ffffff; intensity: 1.2;"></a-entity>
-    <a-entity light="type: directional; color: #fff5eb; intensity: 0.8;" position="1 4 2"></a-entity>
+    <!-- Lights -->
+    <a-entity light="type: ambient; color: #ffffff; intensity: 1.4;"></a-entity>
+    <a-entity light="type: directional; color: #ffffff; intensity: 0.9;" position="1 4 2"></a-entity>
 
     <!-- Hiro Marker -->
-    <a-marker preset="hiro" id="cat-marker" emitevents="true">
-      <!-- Cute Cat Entity with custom procedural animation component -->
-      <a-entity id="cute-cat-model" cute-cat position="0 0 0" scale="0.65 0.65 0.65"></a-entity>
+    <a-marker preset="hiro" id="marker">
+      
+      <!-- โมเดลแมวทั้งตัว (ปรับ Scale 1.2 ให้ตัวใหญ่เห็นชัดเต็มตา) -->
+      <a-entity id="cat" position="0 0 0" rotation="0 90 0" scale="1.2 1.2 1.2">
+        
+        <!-- ลำตัวอ้วนกลม -->
+        <a-sphere class="cat-skin" position="0 0.7 0" scale="0.95 0.75 0.7" color="#f39c12" roughness="0.5"></a-sphere>
+        <!-- พุงขาว/สีอ่อน -->
+        <a-sphere id="belly" position="0.08 0.62 0" scale="0.8 0.62 0.62" color="#fdebd0" roughness="0.6"></a-sphere>
+
+        <!-- หัวแมวน่ารัก -->
+        <a-sphere id="head" class="cat-skin" position="0.7 0.95 0" scale="0.75 0.7 0.72" color="#f39c12" roughness="0.5">
+          <!-- ตาซ้าย (ตาโตดำวิ้ง) -->
+          <a-sphere position="0.58 0.1 0.22" scale="0.1 0.14 0.1" color="#111111">
+            <a-sphere position="0.25 0.25 0.15" radius="0.38" color="#ffffff"></a-sphere>
+          </a-sphere>
+          <!-- ตาขวา -->
+          <a-sphere position="0.58 0.1 -0.22" scale="0.1 0.14 0.1" color="#111111">
+            <a-sphere position="0.25 0.25 0.15" radius="0.38" color="#ffffff"></a-sphere>
+          </a-sphere>
+
+          <!-- จมูกชมพูจิ๋ว -->
+          <a-cone position="0.7 -0.04 0" rotation="90 0 0" radius-bottom="0.06" height="0.06" color="#ff7979"></a-cone>
+
+          <!-- แก้มชมพู -->
+          <a-sphere position="0.52 -0.1 0.3" scale="0.1 0.09 0.09" color="#ff9ff3" opacity="0.8" transparent="true"></a-sphere>
+          <a-sphere position="0.52 -0.1 -0.3" scale="0.1 0.09 0.09" color="#ff9ff3" opacity="0.8" transparent="true"></a-sphere>
+
+          <!-- หูแมวซ้าย -->
+          <a-cone class="cat-skin" position="0.1 0.65 0.28" rotation="0 0 -15" radius-bottom="0.22" height="0.35" color="#e67e22"></a-cone>
+          <a-cone position="0.14 0.63 0.28" rotation="0 0 -15" radius-bottom="0.14" height="0.26" color="#ffb8b8"></a-cone>
+
+          <!-- หูแมวขวา -->
+          <a-cone class="cat-skin" position="0.1 0.65 -0.28" rotation="0 0 -15" radius-bottom="0.22" height="0.35" color="#e67e22"></a-cone>
+          <a-cone position="0.14 0.63 -0.28" rotation="0 0 -15" radius-bottom="0.14" height="0.26" color="#ffb8b8"></a-cone>
+        </a-sphere>
+
+        <!-- ขาหน้าขวา -->
+        <a-entity id="leg-fr" position="0.35 0.45 0.28">
+          <a-cylinder class="cat-skin" position="0 -0.18 0" radius="0.09" height="0.36" color="#f39c12"></a-cylinder>
+          <a-sphere position="0.02 -0.35 0" radius="0.1" color="#ffffff"></a-sphere>
+        </a-entity>
+
+        <!-- ขาหน้าซ้าย -->
+        <a-entity id="leg-fl" position="0.35 0.45 -0.28">
+          <a-cylinder class="cat-skin" position="0 -0.18 0" radius="0.09" height="0.36" color="#f39c12"></a-cylinder>
+          <a-sphere position="0.02 -0.35 0" radius="0.1" color="#ffffff"></a-sphere>
+        </a-entity>
+
+        <!-- ขาหลังขวา -->
+        <a-entity id="leg-br" position="-0.35 0.45 0.28">
+          <a-cylinder class="cat-skin" position="0 -0.18 0" radius="0.09" height="0.36" color="#f39c12"></a-cylinder>
+          <a-sphere position="0.02 -0.35 0" radius="0.1" color="#ffffff"></a-sphere>
+        </a-entity>
+
+        <!-- ขาหลังซ้าย -->
+        <a-entity id="leg-bl" position="-0.35 0.45 -0.28">
+          <a-cylinder class="cat-skin" position="0 -0.18 0" radius="0.09" height="0.36" color="#f39c12"></a-cylinder>
+          <a-sphere position="0.02 -0.35 0" radius="0.1" color="#ffffff"></a-sphere>
+        </a-entity>
+
+        <!-- หางส่ายดุ๊กดิ๊ก -->
+        <a-entity id="tail" position="-0.6 0.72 0">
+          <a-cylinder class="cat-skin" position="-0.18 0.22 0" rotation="0 0 -45" radius="0.07" height="0.55" color="#e67e22"></a-cylinder>
+          <a-sphere position="-0.36 0.4 0" radius="0.09" color="#ffffff"></a-sphere>
+        </a-entity>
+
+      </a-entity>
     </a-marker>
 
     <a-entity camera></a-entity>
   </a-scene>
 
   <script>
-    // Audio synthesizer for cute Meow sound (no external mp3 needed!)
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function playCuteMeow() {
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-
-      const now = audioCtx.currentTime;
-      // Meow frequency sweep: starts around 500Hz, goes up to 850Hz, then gently down to 400Hz
-      osc.frequency.setValueAtTime(520, now);
-      osc.frequency.exponentialRampToValueAtTime(820, now + 0.12);
-      osc.frequency.exponentialRampToValueAtTime(420, now + 0.38);
-
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.18, now + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      osc.start(now);
-      osc.stop(now + 0.4);
-    }
-
-    // Color definitions for cute cat
-    const CAT_COLORS = {
-      orange: {
-        body: '#f39c12',
-        secondary: '#e67e22',
-        belly: '#fdebd0',
-        nose: '#ff7979',
-        innerEar: '#ffb8b8'
-      },
-      black: {
-        body: '#2d3436',
-        secondary: '#1e272e',
-        belly: '#636e72',
-        nose: '#ff7675',
-        innerEar: '#d63031'
-      },
-      white: {
-        body: '#f7f1e3',
-        secondary: '#dcdde1',
-        belly: '#ffffff',
-        nose: '#ff9ff3',
-        innerEar: '#f8a5c2'
-      }
+    // Palettes
+    const PALETTES = {
+      orange: { body: '#f39c12', belly: '#fdebd0' },
+      black:  { body: '#2f3542', belly: '#57606f' },
+      white:  { body: '#ffffff', belly: '#ecf0f1' }
     };
 
-    let currentSpeed = 1.0;
-    let currentColor = 'orange';
+    let walkMultiplier = 1.0;
+    let clock = 0;
 
-    // Register procedural Cute Cat Component in A-Frame
-    AFRAME.registerComponent('cute-cat', {
-      init: function () {
-        const el = this.el;
-        this.time = 0;
-        this.legs = [];
-        this.tail = null;
-        this.head = null;
-        this.bodyMeshes = [];
+    const legFR = document.getElementById('leg-fr');
+    const legFL = document.getElementById('leg-fl');
+    const legBR = document.getElementById('leg-br');
+    const legBL = document.getElementById('leg-bl');
+    const tail  = document.getElementById('tail');
+    const catHead = document.getElementById('head');
+    const marker = document.getElementById('marker');
+    const badge = document.getElementById('badge');
 
-        // Root container for cat
-        const catGroup = document.createElement('a-entity');
-        catGroup.setAttribute('id', 'cat-root');
-        catGroup.setAttribute('rotation', '0 90 0'); // Face forward
+    // Marker Events
+    marker.addEventListener('markerFound', function () {
+      badge.textContent = 'พบ Marker แล้ว! 🐾';
+      badge.classList.add('found');
+    });
 
-        // 1. Chonky cute body (rounded capsule/ellipsoid)
-        const body = document.createElement('a-entity');
-        body.setAttribute('geometry', 'primitive: sphere; radius: 0.65');
-        body.setAttribute('scale', '1.3 0.9 0.9');
-        body.setAttribute('position', '0 0.85 0');
-        body.setAttribute('material', `color: ${CAT_COLORS[currentColor].body}; roughness: 0.5;`);
-        this.bodyMeshes.push(body);
-        catGroup.appendChild(body);
+    marker.addEventListener('markerLost', function () {
+      badge.textContent = 'กำลังหา Marker...';
+      badge.classList.remove('found');
+    });
 
-        // Cute tummy/belly patch
-        const belly = document.createElement('a-entity');
-        belly.setAttribute('geometry', 'primitive: sphere; radius: 0.55');
-        belly.setAttribute('scale', '1.1 0.8 0.7');
-        belly.setAttribute('position', '0.05 0.75 0');
-        belly.setAttribute('material', `color: ${CAT_COLORS[currentColor].belly}; roughness: 0.6;`);
-        this.bellyMesh = belly;
-        catGroup.appendChild(belly);
+    // Walking Animation Loop
+    function loop() {
+      requestAnimationFrame(loop);
+      clock += 0.08 * walkMultiplier;
 
-        // 2. Big Cute Cat Head
-        const head = document.createElement('a-entity');
-        head.setAttribute('geometry', 'primitive: sphere; radius: 0.58');
-        head.setAttribute('scale', '1 0.92 0.95');
-        head.setAttribute('position', '0.85 1.15 0');
-        head.setAttribute('material', `color: ${CAT_COLORS[currentColor].body}; roughness: 0.5;`);
-        this.bodyMeshes.push(head);
-        this.head = head;
+      // Leg swing angles
+      const swingR = Math.sin(clock) * 32;
+      const swingL = Math.sin(clock + Math.PI) * 32;
 
-        // Big Anime-style Cute Eyes
-        const createEye = (z) => {
-          const eye = document.createElement('a-entity');
-          eye.setAttribute('geometry', 'primitive: sphere; radius: 0.12');
-          eye.setAttribute('scale', '0.4 1 0.8');
-          eye.setAttribute('position', `0.38 0.08 ${z}`);
-          eye.setAttribute('material', 'color: #111; roughness: 0.2;');
+      if (legFR) legFR.setAttribute('rotation', '0 0 ' + swingR);
+      if (legFL) legFL.setAttribute('rotation', '0 0 ' + swingL);
+      if (legBR) legBR.setAttribute('rotation', '0 0 ' + swingL);
+      if (legBL) legBL.setAttribute('rotation', '0 0 ' + swingR);
 
-          // Eye sparkle highlight (cute anime twinkle)
-          const sparkle = document.createElement('a-entity');
-          sparkle.setAttribute('geometry', 'primitive: sphere; radius: 0.04');
-          sparkle.setAttribute('position', `0.08 0.04 0.03`);
-          sparkle.setAttribute('material', 'color: #ffffff; roughness: 0.1;');
-          eye.appendChild(sparkle);
-          return eye;
-        };
-        head.appendChild(createEye(0.24));
-        head.appendChild(createEye(-0.24));
-
-        // Tiny cute pink nose
-        const nose = document.createElement('a-entity');
-        nose.setAttribute('geometry', 'primitive: cone; radiusBottom: 0.06; radiusTop: 0.01; height: 0.06');
-        nose.setAttribute('rotation', '90 0 0');
-        nose.setAttribute('position', '0.48 -0.05 0');
-        nose.setAttribute('material', `color: ${CAT_COLORS[currentColor].nose}; roughness: 0.4;`);
-        this.noseMesh = nose;
-        head.appendChild(nose);
-
-        // Cute Cat Ears
-        const createEar = (z, rotZ) => {
-          const earGroup = document.createElement('a-entity');
-          earGroup.setAttribute('position', `0.15 0.45 ${z}`);
-          earGroup.setAttribute('rotation', `0 0 ${rotZ}`);
-
-          // Outer ear
-          const outerEar = document.createElement('a-entity');
-          outerEar.setAttribute('geometry', 'primitive: cone; radiusBottom: 0.22; height: 0.35; segmentsRadial: 4');
-          outerEar.setAttribute('scale', '0.7 1 0.7');
-          outerEar.setAttribute('material', `color: ${CAT_COLORS[currentColor].secondary}; roughness: 0.5;`);
-          this.bodyMeshes.push(outerEar);
-          earGroup.appendChild(outerEar);
-
-          // Inner pink ear
-          const innerEar = document.createElement('a-entity');
-          innerEar.setAttribute('geometry', 'primitive: cone; radiusBottom: 0.15; height: 0.26; segmentsRadial: 4');
-          innerEar.setAttribute('scale', '0.6 1 0.4');
-          innerEar.setAttribute('position', `0.04 -0.03 0`);
-          innerEar.setAttribute('material', `color: ${CAT_COLORS[currentColor].innerEar}; roughness: 0.6;`);
-          this.innerEars = this.innerEars || [];
-          this.innerEars.push(innerEar);
-          earGroup.appendChild(innerEar);
-
-          return earGroup;
-        };
-        head.appendChild(createEar(0.28, -10));
-        head.appendChild(createEar(-0.28, -10));
-
-        // Cheeks blush
-        const createBlush = (z) => {
-          const blush = document.createElement('a-entity');
-          blush.setAttribute('geometry', 'primitive: sphere; radius: 0.08');
-          blush.setAttribute('scale', '0.3 0.6 0.8');
-          blush.setAttribute('position', `0.4 -0.1 ${z}`);
-          blush.setAttribute('material', 'color: #ff9ff3; opacity: 0.65; transparent: true;');
-          return blush;
-        };
-        head.appendChild(createBlush(0.32));
-        head.appendChild(createBlush(-0.32));
-
-        // Whiskers
-        const createWhiskers = (zSign) => {
-          const group = document.createElement('a-entity');
-          group.setAttribute('position', `0.45 -0.06 ${zSign * 0.22}`);
-          for (let i = -1; i <= 1; i++) {
-            const whisker = document.createElement('a-entity');
-            whisker.setAttribute('geometry', 'primitive: cylinder; radius: 0.008; height: 0.28');
-            whisker.setAttribute('rotation', `0 ${zSign * 70} ${i * 12}`);
-            whisker.setAttribute('material', 'color: #333333');
-            group.appendChild(whisker);
-          }
-          return group;
-        };
-        head.appendChild(createWhiskers(1));
-        head.appendChild(createWhiskers(-1));
-
-        catGroup.appendChild(head);
-
-        // 3. Cute Walking Legs (4 Legs with paws)
-        const legOffsets = [
-          { x: 0.45, z: 0.32, phase: 0 },         // Front Right
-          { x: 0.45, z: -0.32, phase: Math.PI },   // Front Left
-          { x: -0.45, z: 0.32, phase: Math.PI },   // Back Right
-          { x: -0.45, z: -0.32, phase: 0 }         // Back Left
-        ];
-
-        legOffsets.forEach((cfg) => {
-          // Pivot container at hip/shoulder
-          const hipPivot = document.createElement('a-entity');
-          hipPivot.setAttribute('position', `${cfg.x} 0.65 ${cfg.z}`);
-
-          // Leg cylinder
-          const leg = document.createElement('a-entity');
-          leg.setAttribute('geometry', 'primitive: cylinder; radius: 0.11; height: 0.5');
-          leg.setAttribute('position', '0 -0.25 0');
-          leg.setAttribute('material', `color: ${CAT_COLORS[currentColor].body}; roughness: 0.6;`);
-          this.bodyMeshes.push(leg);
-
-          // White cute paw sock
-          const paw = document.createElement('a-entity');
-          paw.setAttribute('geometry', 'primitive: sphere; radius: 0.13');
-          paw.setAttribute('scale', '1.3 0.8 1.1');
-          paw.setAttribute('position', '0.04 -0.22 0');
-          paw.setAttribute('material', `color: ${CAT_COLORS[currentColor].belly}; roughness: 0.5;`);
-          leg.appendChild(paw);
-
-          hipPivot.appendChild(leg);
-          catGroup.appendChild(hipPivot);
-
-          this.legs.push({ pivot: hipPivot, phase: cfg.phase });
-        });
-
-        // 4. Wagging Cute Tail
-        const tailRoot = document.createElement('a-entity');
-        tailRoot.setAttribute('position', '-0.65 0.9 0');
-        tailRoot.setAttribute('rotation', '0 0 -35');
-
-        const tailSegment = document.createElement('a-entity');
-        tailSegment.setAttribute('geometry', 'primitive: cylinder; radius: 0.08; height: 0.7');
-        tailSegment.setAttribute('position', '-0.2 0.28 0');
-        tailSegment.setAttribute('rotation', '0 0 -40');
-        tailSegment.setAttribute('material', `color: ${CAT_COLORS[currentColor].secondary}; roughness: 0.5;`);
-        this.bodyMeshes.push(tailSegment);
-
-        // Tail fluffy tip
-        const tailTip = document.createElement('a-entity');
-        tailTip.setAttribute('geometry', 'primitive: sphere; radius: 0.09');
-        tailTip.setAttribute('position', '0 0.35 0');
-        tailTip.setAttribute('material', `color: ${CAT_COLORS[currentColor].belly}; roughness: 0.5;`);
-        tailSegment.appendChild(tailTip);
-
-        tailRoot.appendChild(tailSegment);
-        catGroup.appendChild(tailRoot);
-        this.tail = tailRoot;
-
-        el.appendChild(catGroup);
-      },
-
-      tick: function (time, deltaTime) {
-        if (!deltaTime) return;
-        const dt = deltaTime / 1000;
-        // Walking frequency based on currentSpeed
-        const freq = 6.0 * currentSpeed;
-        this.time += dt * freq;
-
-        // Animate legs walking (swing back and forth along Z)
-        this.legs.forEach(leg => {
-          const angle = Math.sin(this.time + leg.phase) * 32; // degrees
-          leg.pivot.setAttribute('rotation', `0 0 ${angle}`);
-        });
-
-        // Body bobbing up and down while walking
-        const bob = Math.abs(Math.sin(this.time * 2)) * 0.06;
-        if (this.head) {
-          const headBob = Math.sin(this.time) * 4;
-          this.head.setAttribute('rotation', `0 0 ${headBob}`);
-        }
-
-        // Tail sway side to side
-        if (this.tail) {
-          const tailSway = Math.sin(this.time * 1.2) * 22;
-          this.tail.setAttribute('rotation', `${tailSway} 0 -35`);
-        }
-      },
-
-      updateColor: function (colorKey) {
-        const theme = CAT_COLORS[colorKey];
-        if (!theme) return;
-
-        this.bodyMeshes.forEach(mesh => {
-          mesh.setAttribute('material', `color: ${theme.body}; roughness: 0.5;`);
-        });
-        if (this.bellyMesh) {
-          this.bellyMesh.setAttribute('material', `color: ${theme.belly}; roughness: 0.6;`);
-        }
-        if (this.noseMesh) {
-          this.noseMesh.setAttribute('material', `color: ${theme.nose}; roughness: 0.4;`);
-        }
-        if (this.innerEars) {
-          this.innerEars.forEach(ear => {
-            ear.setAttribute('material', `color: ${theme.innerEar}; roughness: 0.6;`);
-          });
-        }
+      // Tail wagging
+      if (tail) {
+        const wag = Math.sin(clock * 0.9) * 25;
+        tail.setAttribute('rotation', wag + ' 0 0');
       }
-    });
 
-    // Marker detection event handlers
-    const marker = document.querySelector('#cat-marker');
-    const statusBadge = document.querySelector('#status-badge');
+      // Head slight bob
+      if (catHead) {
+        const bob = Math.sin(clock) * 3;
+        catHead.setAttribute('rotation', '0 0 ' + bob);
+      }
+    }
+    loop();
 
-    marker.addEventListener('markerFound', () => {
-      statusBadge.textContent = 'พบ Marker แล้ว! 🐾';
-      statusBadge.classList.add('found');
-      playCuteMeow();
-    });
-
-    marker.addEventListener('markerLost', () => {
-      statusBadge.textContent = 'กำลังหา Marker...';
-      statusBadge.classList.remove('found');
-    });
-
-    // Speed Control Function
-    function setSpeed(speed, btnElement) {
-      currentSpeed = speed;
-      document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('active'));
-      btnElement.classList.add('active');
-      playCuteMeow();
+    // Speed setter
+    function setSpeed(speed, btn) {
+      walkMultiplier = speed;
+      document.querySelectorAll('.btn-spd').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
     }
 
-    // Color Control Function
-    function setCatColor(colorName, btnElement) {
-      currentColor = colorName;
-      document.querySelectorAll('.btn-color').forEach(b => b.classList.remove('active'));
-      btnElement.classList.add('active');
+    // Color setter
+    function setCatColor(colKey, btn) {
+      document.querySelectorAll('.btn-col').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
 
-      const catEl = document.querySelector('[cute-cat]');
-      if (catEl && catEl.components['cute-cat']) {
-        catEl.components['cute-cat'].updateColor(colorName);
+      var pal = PALETTES[colKey];
+      var skins = document.querySelectorAll('.cat-skin');
+      skins.forEach(function(el) {
+        el.setAttribute('color', pal.body);
+      });
+
+      var belly = document.getElementById('belly');
+      if (belly) {
+        belly.setAttribute('color', pal.belly);
       }
-      playCuteMeow();
     }
 
-    // Modal view helper
-    function toggleMarkerModal(show) {
-      const modal = document.getElementById('marker-modal');
-      modal.style.display = show ? 'flex' : 'none';
-      if (show) playCuteMeow();
+    // Modal
+    function toggleModal(show) {
+      document.getElementById('marker-modal').style.display = show ? 'flex' : 'none';
     }
   </script>
 </body>
